@@ -1,0 +1,26 @@
+# Ignore source files (we publish only compiled files)
+src/
+tsconfig.json
+
+# Ignore dev dependencies and tooling
+node_modules/
+*.log
+*.tsbuildinfo
+.DS_Store
+.vscode/
+.idea/
+
+# Ignore local environment files
+.env
+.env.local
+.env.*.local
+
+# Ignore tests
+test/
+__tests__/
+
+# Optional: ignore package tarballs
+*.tgz
+
+# Optional: ignore markdown docs not needed in npm
+docs/

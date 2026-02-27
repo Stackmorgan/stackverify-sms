@@ -57,22 +57,27 @@ Requirements:
 ### CommonJS
 
 ```js
+// test.cjs
 const { StackVerify } = require("stackverify-sms");
 
 const client = new StackVerify({
-  apiKey: "sk_live_your_api_key"
+  apiKey: "sk_live_your_api_key_here",
+  timeout: 20000 // 20 seconds
 });
 
-async function run() {
-  const response = await client.sms.send({
-    recipients: ["+254712345678"],
-    body: "Hello from StackVerify"
-  });
+(async () => {
+  try {
+    const res = await client.sms.send({
+      recipients: ["+254712345678"],
+      body: "Hello from StackVerify!",
+      sender_id: "SMS" // optional, default is "SMS"
+    });
 
-  console.log(response);
-}
-
-run();
+    console.log("SMS sent:", res);
+  } catch (err) {
+    console.error("Request failed. Possibly network timeout or server issue:", err);
+  }
+})();
 ```
 
 ---
@@ -80,16 +85,25 @@ run();
 ### ESM
 
 ```js
+// test.mjs
 import { StackVerify } from "stackverify-sms";
 
 const client = new StackVerify({
-  apiKey: process.env.STACKVERIFY_KEY
+  apiKey: process.env.STACKVERIFY_KEY,
+  timeout: 20000 // 20 seconds
 });
 
-await client.sms.send({
-  recipients: ["+254712345678"],
-  body: "Hello from StackVerify"
-});
+try {
+  const res = await client.sms.send({
+    recipients: ["+254712345678"],
+    body: "Hello from StackVerify!",
+    sender_id: "SMS" // optional, default is "SMS"
+  });
+
+  console.log("SMS sent:", res);
+} catch (err) {
+  console.error("Request failed. Possibly network timeout or server issue:", err);
+}
 ```
 
 ---
