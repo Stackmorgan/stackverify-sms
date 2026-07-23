@@ -14,15 +14,19 @@ export class StackVerify {
       throw new Error("StackVerify API key is required");
     }
 
+    const isLiveKey = config.apiKey.startsWith("sv_live_");
     const baseUrl =
-      config.baseUrl ?? "https://stackverify.site/api/v1";
+      config.baseUrl ?? (isLiveKey
+        ? "https://gateway.stackverify.site"
+        : "https://stackverify.site/api/v1");
 
     const http = new HttpClient(
       config.apiKey,
       baseUrl,
       {
         timeout: config.timeout,
-        retries: config.retries
+        retries: config.retries,
+        liveMode: isLiveKey
       }
     );
 

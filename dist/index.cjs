@@ -43,6 +43,10 @@ var HttpClient = class {
     this.baseUrl = baseUrl;
     this.timeout = options?.timeout ?? 1e4;
     this.retries = options?.retries ?? 2;
+    this.liveMode = options?.liveMode ?? false;
+  }
+  get isLiveMode() {
+    return this.liveMode;
   }
   async request(method, path, body) {
     let attempt = 0;
@@ -50,12 +54,17 @@ var HttpClient = class {
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+        const headers = {
+          "Content-Type": "application/json"
+        };
+        if (this.liveMode) {
+          headers["X-API-Key"] = this.apiKey;
+        } else {
+          headers["Authorization"] = `Bearer ${this.apiKey}`;
+        }
         const response = await fetch(`${this.baseUrl}${path}`, {
           method,
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-            "Content-Type": "application/json"
-          },
+          headers,
           body: body ? JSON.stringify(body) : void 0,
           signal: controller.signal
         });
@@ -89,6 +98,16 @@ var SMSResource = class {
     this.http = http;
   }
   send(params) {
+    if (this.http.isLiveMode) {
+      return this.http.request(
+        "POST",
+        "/api/sms/send",
+        {
+          number: params.recipients[0],
+          message: params.body
+        }
+      );
+    }
     return this.http.request(
       "POST",
       "/sms/send",
@@ -103,13 +122,15 @@ var StackVerify = class {
     if (!config.apiKey) {
       throw new Error("StackVerify API key is required");
     }
-    const baseUrl = config.baseUrl ?? "https://stackverify.site/api/v1";
+    const isLiveKey = config.apiKey.startsWith("sv_live_");
+    const baseUrl = config.baseUrl ?? (isLiveKey ? "https://gateway.stackverify.site" : "https://stackverify.site/api/v1");
     const http = new HttpClient(
       config.apiKey,
       baseUrl,
       {
         timeout: config.timeout,
-        retries: config.retries
+        retries: config.retries,
+        liveMode: isLiveKey
       }
     );
     this.sms = new SMSResource(http);

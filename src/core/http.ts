@@ -3,6 +3,7 @@ import { StackVerifyError } from "./errors";
 export interface RequestOptions {
   timeout?: number;
   retries?: number;
+  liveMode?: boolean;
 }
 
 export class HttpClient {
@@ -10,12 +11,18 @@ export class HttpClient {
   private baseUrl: string;
   private timeout: number;
   private retries: number;
+  private liveMode: boolean;
 
   constructor(apiKey: string, baseUrl: string, options?: RequestOptions) {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
     this.timeout = options?.timeout ?? 10000;
     this.retries = options?.retries ?? 2;
+    this.liveMode = options?.liveMode ?? false;
+  }
+
+  get isLiveMode(): boolean {
+    return this.liveMode;
   }
 
   async request<T>(
@@ -30,12 +37,19 @@ export class HttpClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json"
+        };
+
+        if (this.liveMode) {
+          headers["X-API-Key"] = this.apiKey;
+        } else {
+          headers["Authorization"] = `Bearer ${this.apiKey}`;
+        }
+
         const response = await fetch(`${this.baseUrl}${path}`, {
           method,
-          headers: {
-            Authorization: `Bearer ${this.apiKey}`,
-            "Content-Type": "application/json"
-          },
+          headers,
           body: body ? JSON.stringify(body) : undefined,
           signal: controller.signal
         });

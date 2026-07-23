@@ -1,13 +1,16 @@
 interface RequestOptions {
     timeout?: number;
     retries?: number;
+    liveMode?: boolean;
 }
 declare class HttpClient {
     private apiKey;
     private baseUrl;
     private timeout;
     private retries;
+    private liveMode;
     constructor(apiKey: string, baseUrl: string, options?: RequestOptions);
+    get isLiveMode(): boolean;
     request<T>(method: string, path: string, body?: unknown): Promise<T>;
 }
 
@@ -42,4 +45,4 @@ declare class StackVerifyError extends Error {
     constructor(message: string, status?: number, code?: string, requestId?: string);
 }
 
-export { StackVerify, StackVerifyConfig, StackVerifyError };
+export { SendSMSParams, SendSMSResponse, StackVerify, StackVerifyConfig, StackVerifyError };
