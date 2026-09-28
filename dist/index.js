@@ -96,7 +96,7 @@ var StackVerify = class {
       throw new Error("StackVerify API key is required");
     }
     const isLiveKey = config.apiKey.startsWith("sv_live_");
-    const baseUrl = config.baseUrl ?? (isLiveKey ? "https://gateway.stackverify.site" : "https://stackverify.site/api/v1");
+    const baseUrl = config.baseUrl ?? (isLiveKey ? "https://gateway.stack-verify.com" : "https://stack-verify.com/api/v1");
     const http = new HttpClient(
       config.apiKey,
       baseUrl,
